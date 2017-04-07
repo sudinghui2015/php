@@ -29,4 +29,5 @@ protected function request($method, $data)
 ## 获取相关CA证书
 ```txt
 从 http://curl.haxx.se/ca/cacert.pem 获取CA证书
+
 ```
