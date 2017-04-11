@@ -25,5 +25,28 @@ apache都接受，都会被认为是对index.php的访问
 ```txt
 * 使用rewrite，但是缺点也很明显，需要把PATH_INFO转化为Query String
 * 模拟PATH_INFO：
-  1）
+  1）在Nginx中，通过对文件名的扩展名匹配，来决定是否要交给php cgi服务器去解释，在nginx.conf中一般默认配置项：
+  location ~.php$ {
+    fastcgi_index index.php;
+    fastcgi_pass  127.0.0.1:9000;
+    include       fastcgi_params;
+  }
+  所以，对于类似/laruence/info.php/pathinfo这样的文件路径，Nginx是不会正确的交给php cgi服务器的，需要改写这段配置：
+  location ~.php {
+    fastcgi_index   index.php;
+    fastcgi_pass    127.0.0.1:9000;
+    include         fastcgi_params;
+  }
+  现在，脚本路径已经交由PHP自己处理了。
+```
+
+## 怎么增加PATH_INFO
+```txt
+* 打开PHP中cgi.fix_pathinfo配置项，打开这个配置项以后，PHP会根据CGI规范来检查SCRIPT_FILENAME中那部分是访问脚本和PATH_INFO（ini配置解释:http://cn.php.net/manual/en/ini.core.php），并根据SCRIPT_NAME来修改PATH_INFO
+location ~.php {
+  fastcgi_index   index.php
+  fastcgi_pass    127.0.0.1:9000;
+  include         fastcgi_params;
+  fastcgi_param   PATH_INFO $fastcgi_script_name;
+}
 ```
